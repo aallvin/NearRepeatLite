@@ -1,0 +1,13 @@
+# R build artefacts
+*.Rproj.user
+*.Rhistory
+*.RData
+*.Ruserdata
+.Rproj.user/
+
+# Built package output
+*.tar.gz
+*.zip
+
+# Documentation build
+docs/

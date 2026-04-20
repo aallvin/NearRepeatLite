@@ -1,0 +1,143 @@
+---
+title: "Getting Started with NearRepeatLite"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started with NearRepeatLite}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment  = "#>"
+)
+```
+
+## What is NearRepeatLite?
+
+`NearRepeatLite` is a memory-efficient implementation of the Knox test for
+near-repeat spatio-temporal clustering. It is a drop-in replacement for
+`NearRepeat()` from [Steenbeck's NearRepeat package](https://github.com/wsteenbeek/NearRepeat),
+designed for use when large datasets cause memory allocation errors.
+
+The standard `NearRepeat()` function calls `stats::dist()` to compute pairwise
+distances between all events, producing a condensed matrix of *n(n−1)/2* values
+held in RAM simultaneously. For a dataset of ~79,000 events this requires
+approximately 50 GB — infeasible on standard hardware.
+
+`NearRepeatLite()` processes one row of the distance matrix at a time. Only
+the observed count matrix and within-range pair indices are retained, reducing
+peak RAM from O(n²) to O(n + within-range pairs). For the Oslo dataset, peak
+usage drops from ~50 GB to under 1 GB.
+
+| n events | NearRepeat() peak | NearRepeatLite() peak |
+|---|---|---|
+| 5,000 | ~200 MB | ~50 MB |
+| 10,000 | ~800 MB | ~100 MB |
+| 50,000 | ~20 GB | ~400 MB |
+| 79,294 | ~50 GB | < 1 GB |
+
+Results are identical in observed counts (deterministic). Knox ratios and
+p-values differ only due to Monte Carlo noise, which is expected.
+
+## Installation
+
+```r
+# Install remotes if needed
+install.packages("remotes")
+
+# Install NearRepeatLite from GitHub
+remotes::install_github("aallvin/NearRepeatLite")
+```
+
+## Quick start
+
+```{r quickstart}
+library(NearRepeatLite)
+
+# Load the synthetic Oslo example dataset (500 events, 2015-2019)
+data(oslo_sim)
+head(oslo_sim)
+```
+
+## Defining bands
+
+Spatial and temporal bands are defined as numeric breakpoint vectors.
+Intervals are left-closed and right-open by default, e.g. `[0, 1)`, `[1, 101)`.
+Breaks are chosen so that integer Manhattan distances fall in the intended band:
+a break at 101 (not 100) ensures distance = 100 m falls inside the "1–100 m"
+band rather than the next one.
+
+```{r bands}
+# Spatial: repeat location (0 m) + 100 m intervals to 500 m
+sds <- c(0, 1, 101, 201, 301, 401, 501)
+
+# Temporal: same day + four weekly bands
+tds <- c(0, 1, 8, 15, 22, 29)
+```
+
+## Running the Knox test
+
+Set a seed before calling `NearRepeatLite()` for reproducible Knox ratios
+and p-values. Use `nrep = 99` for exploratory runs and `nrep = 999` for
+publication-ready results.
+
+```{r run, cache = TRUE}
+set.seed(1519)
+result <- NearRepeatLite(
+  x    = oslo_sim$x,
+  y    = oslo_sim$y,
+  time = oslo_sim$date,
+  sds  = sds,
+  tds  = tds,
+  nrep = 99
+)
+```
+
+## Inspecting results
+
+The function returns a `"knox"` class object with four elements:
+
+```{r results}
+# Observed number of crime-pair counts per band combination
+result$observed
+
+# Knox ratios (observed / mean simulated)
+round(result$knox_ratio, 2)
+
+# Monte Carlo p-values
+round(result$pvalues, 3)
+```
+
+A Knox ratio > 1 means more pairs were observed in that band combination than
+expected by chance. Following Ratcliffe (2008), cells with Knox ratio ≥ 1.2
+and p < 0.05 are considered practically significant near-repeat patterns.
+
+## Visualising results
+
+The output is fully compatible with `plot.knox()` from Steenbeck's NearRepeat
+package:
+
+```r
+# Install NearRepeat for plotting (not required to run NearRepeatLite)
+# remotes::install_github("wsteenbeek/NearRepeat")
+# library(NearRepeat)
+# plot(result)
+```
+
+## When to use NearRepeatLite vs. NearRepeat
+
+| Situation | Recommendation |
+|---|---|
+| n < ~15,000 events | Either; `NearRepeat()` is faster for small datasets |
+| n ≥ ~15,000, or R reports allocation errors | `NearRepeatLite()` |
+| Replicating Steenbeck's published examples | `NearRepeat()` |
+| Pooled multi-year analysis of large crime types | `NearRepeatLite()` |
+
+## References
+
+Ratcliffe, J. H. (2008). *Intelligence-Led Policing*. Cullompton: Willan.
+
+Steenbeck, W. (2018). *NearRepeat: Near Repeat Calculator in R.*
+R package. <https://github.com/wsteenbeek/NearRepeat>

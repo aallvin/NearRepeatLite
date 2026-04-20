@@ -1,0 +1,26 @@
+Package: NearRepeatLite
+Title: Memory-Efficient Knox Test for Near-Repeat Spatio-Temporal Clustering
+Version: 0.1.0
+Authors@R: person("Annica", "Allvin", role = c("aut", "cre"),
+                  comment = c(ORCID = ""))
+Description: A memory-efficient implementation of the Knox test for near-repeat
+    spatio-temporal clustering. Provides NearRepeatLite(), a drop-in replacement
+    for NearRepeat() from Steenbeck's NearRepeat package, for use when large
+    datasets (~50,000+ events) cause memory allocation errors. Uses row-by-row
+    distance computation instead of a full pairwise distance matrix, reducing
+    peak RAM from O(n^2) to O(n + within-range pairs). For a dataset of 79,294
+    events, peak usage drops from approximately 50 GB to under 1 GB. Output is
+    fully compatible with the knox class and plot.knox() from the NearRepeat
+    package. Developed for a near-repeat analysis of crime in Oslo, Norway.
+License: GPL-3
+Encoding: UTF-8
+Depends: R (>= 4.1.0)
+Imports:
+    progressr (>= 0.6.0)
+Suggests:
+    NearRepeat,
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr
+RoxygenNote: 7.3.2
+LazyData: true

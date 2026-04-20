@@ -1,0 +1,5 @@
+^algorithm\.md$
+^data-raw$
+^\.gitignore$
+^NearRepeatLite\.Rproj$
+^\.Rproj\.user$
