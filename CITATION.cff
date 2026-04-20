@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+authors:
+  - family-names: Allvin
+    given-names: Annica
+title: "NearRepeatLite: Memory-Efficient Knox Test for Near-Repeat Spatio-Temporal Clustering"
+version: 0.1.0
+date-released: 2026-04-20
+url: "https://github.com/aallvin/NearRepeatLite"
+doi: 10.5281/zenodo.19664568
+license: GPL-3.0
+abstract: >
+  A memory-efficient implementation of the Knox test for near-repeat
+  spatio-temporal clustering. Drop-in replacement for NearRepeat() by
+  Steenbeck for use when large datasets cause memory allocation errors.
+  Uses row-by-row distance computation to reduce peak RAM from O(n^2)
+  to O(n + within-range pairs).
+references:
+  - type: software
+    title: "NearRepeat: Near Repeat Calculator in R"
+    authors:
+      - family-names: Steenbeck
+        given-names: Wouter
+    url: "https://github.com/wsteenbeek/NearRepeat"
+    year: 2018

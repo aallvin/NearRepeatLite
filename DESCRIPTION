@@ -22,5 +22,7 @@ Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr
+URL: https://github.com/aallvin/NearRepeatLite
+BugReports: https://github.com/aallvin/NearRepeatLite/issues
 RoxygenNote: 7.3.2
 LazyData: true
