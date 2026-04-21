@@ -1,7 +1,7 @@
-# Algorithm: NearRepeat_chunked()
+# Algorithm: NearRepeatLite()
 
 This document explains the Knox test as implemented by Steenbeck's `NearRepeat()`
-and how `NearRepeat_chunked()` performs the same computation with a different
+and how `NearRepeatLite()` performs the same computation with a different
 memory strategy. The two implementations are mathematically equivalent.
 
 ---
@@ -92,7 +92,7 @@ but each iteration still peaks at one full matrix.
 
 ## 3. The chunked approach: two-pass algorithm
 
-`NearRepeat_chunked()` replaces the two `dist()` calls with explicit loops
+`NearRepeatLite()` replaces the two `dist()` calls with explicit loops
 over rows of the (never-materialised) distance matrix. At any point in the
 computation, at most one row's worth of distances — a vector of length *n − i*
 — exists in memory.
@@ -184,7 +184,7 @@ roughly ±0.007.
 
 R's `stats::dist()` coerces Date vectors to their internal numeric
 representation (integer days since 1970-01-01) before computing distances.
-`NearRepeat_chunked()` performs the same coercion explicitly:
+`NearRepeatLite()` performs the same coercion explicitly:
 
 ```r
 time_v <- as.numeric(mydf$time)
@@ -218,7 +218,7 @@ where the label "a to b" corresponded to the computation interval [a−1, b).
 
 ## 7. Summary
 
-| Property | NearRepeat() | NearRepeat_chunked() |
+| Property | NearRepeat() | NearRepeatLite() |
 |---|---|---|
 | Observed counts | Deterministic | **Identical** |
 | Knox ratios / p-values | MC noise | MC noise (different seed) |
